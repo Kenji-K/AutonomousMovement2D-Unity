@@ -1,0 +1,51 @@
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+*.svd
+*.userprefs
+*.csproj
+*.pidb
+*.suo
+*.sln
+*.user
+*.unityproj
+*.booproj
+UpgradeLog.htm
+
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+ 
+# =============== #
+# Unity generated #
+# =============== #
+/AutonomousMovement2D/Library/*
+/AutonomousMovement2D/Temp/*
+/AutonomousMovement2D/obj/*
+/AutonomousMovement2D/UnityGenerated/*
+/AutonomousMovement2D/ProjectSettings/*
+
+# ============== #
+# User generated #
+# ============== #
+/AutonomousMovement2D/Builds/*
+
+# ============================== #
+# External assets and extensions #
+# ============================== #
+-tk2d*
+/AutonomousMovement2D/Assets/Extensions*
+
+# ======== #
+# Hg Files #
+# ======== #
+.hgignore
+/AutonomousMovement2D/.hg/*
