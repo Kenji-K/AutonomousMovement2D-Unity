@@ -122,7 +122,9 @@ namespace Kensai.AutonomousMovement {
         }
 
         void OnDestroy() {
-            World2D.Instance.AgentList.Remove(this);
+            if (World2D.Instance != null) { 
+                World2D.Instance.AgentList.Remove(this);
+            }
         }
 
         public void RegisterSteeringBehaviour(SteeringBehaviour2D behaviour) {
