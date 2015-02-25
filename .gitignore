@@ -42,7 +42,8 @@ Thumbs.db
 # External assets and extensions #
 # ============================== #
 -tk2d*
-/AutonomousMovement2D/Assets/Extensions*
+/AutonomousMovement2D/Assets/Extensions/TK2D*
+/AutonomousMovement2D/Assets/Extensions/UnityVS*
 
 # ======== #
 # Hg Files #

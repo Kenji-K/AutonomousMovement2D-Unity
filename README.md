@@ -5,8 +5,7 @@ The project is still in early infancy so there are bugs to sort out before this 
 
 ## External assets used in the project
 
-- 2D Toolkit (not included)
-- MoreLinq (not included)
-- MiscUtil (not included)
+- 2D Toolkit (not included, but only needed for the included Unity Scene)
+- MiscUtil
 - Unity Test Tools
 - Kenney Public Domain Sprites
