@@ -22,7 +22,7 @@ namespace Kensai.AutonomousMovement {
             foreach (var neighbor in neighbors) {
                 if (neighbor == agent) continue;
 
-                centerOfMass += neighbor.rigidbody2D.position;
+                centerOfMass += neighbor.GetComponent<Rigidbody2D>().position;
             }
 
             int neighborCount = neighbors.Count();

@@ -25,13 +25,13 @@ namespace Kensai.AutonomousMovement {
             if (agentA == null || agentB == null) return Vector2.zero;
             if (slowingDistance < 0) throw new InvalidOperationException("The slowing distance can't be negative.");
 
-            Vector2 midPoint = (agentA.rigidbody2D.position + agentB.rigidbody2D.position) / 2;
+            Vector2 midPoint = (agentA.GetComponent<Rigidbody2D>().position + agentB.GetComponent<Rigidbody2D>().position) / 2;
 
-            float timeToReachMidPoint = (thisAgent.rigidbody2D.position - midPoint).magnitude / thisAgent.MaxSpeed;
+            float timeToReachMidPoint = (thisAgent.GetComponent<Rigidbody2D>().position - midPoint).magnitude / thisAgent.MaxSpeed;
 
             //Position in the future
-            Vector2 AFuturePos = agentA.rigidbody2D.position + agentA.rigidbody2D.velocity * timeToReachMidPoint;
-            Vector2 BFuturePos = agentB.rigidbody2D.position + agentB.rigidbody2D.velocity * timeToReachMidPoint;
+            Vector2 AFuturePos = agentA.GetComponent<Rigidbody2D>().position + agentA.GetComponent<Rigidbody2D>().velocity * timeToReachMidPoint;
+            Vector2 BFuturePos = agentB.GetComponent<Rigidbody2D>().position + agentB.GetComponent<Rigidbody2D>().velocity * timeToReachMidPoint;
 
             midPoint = (AFuturePos + BFuturePos) / 2;
 

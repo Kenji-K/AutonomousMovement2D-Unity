@@ -75,7 +75,7 @@ namespace Kensai.AutonomousMovement {
         }
 
         public void UpdateEntity(SteeringAgent2D entity, Vector2 previousPosition) {
-            Vector2 currentPosition = entity.rigidbody2D.position;
+            Vector2 currentPosition = entity.GetComponent<Rigidbody2D>().position;
 
             int prevIndex = IndexFromPosition(previousPosition);
             int curIndex = IndexFromPosition(currentPosition);

@@ -23,9 +23,9 @@ namespace Kensai.AutonomousMovement {
 
         public static Vector2 GetVelocity(SteeringAgent2D agent, SteeringAgent2D target, Vector2 offset, float slowingDistance = 1f) {
             Vector2 worldOffsetPos = target.transform.TransformPoint(offset);
-            Vector2 toOffset = worldOffsetPos - agent.rigidbody2D.position;
-            float lookAheadTime = toOffset.magnitude / (agent.MaxSpeed + target.rigidbody2D.velocity.magnitude);
-            return Arrive2D.GetVelocity(agent, worldOffsetPos + target.rigidbody2D.velocity * lookAheadTime, slowingDistance);
+            Vector2 toOffset = worldOffsetPos - agent.GetComponent<Rigidbody2D>().position;
+            float lookAheadTime = toOffset.magnitude / (agent.MaxSpeed + target.GetComponent<Rigidbody2D>().velocity.magnitude);
+            return Arrive2D.GetVelocity(agent, worldOffsetPos + target.GetComponent<Rigidbody2D>().velocity * lookAheadTime, slowingDistance);
         }
     }
 }

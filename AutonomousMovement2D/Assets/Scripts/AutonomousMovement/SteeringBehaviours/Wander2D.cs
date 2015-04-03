@@ -30,7 +30,7 @@ namespace Kensai.AutonomousMovement {
             Vector2 targetLocal = wanderTarget + new Vector2(0, WanderDistance);
             targetWorld = agent.transform.TransformPoint(targetLocal);
 
-            return targetWorld - agent.rigidbody2D.position;
+            return targetWorld - agent.GetComponent<Rigidbody2D>().position;
         }
 
         void OnDrawGizmos() {

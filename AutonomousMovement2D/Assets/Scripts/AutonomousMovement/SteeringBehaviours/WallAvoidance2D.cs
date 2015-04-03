@@ -75,9 +75,9 @@ namespace Kensai.AutonomousMovement {
                 } //Next wall
 
                 if (closestWallIndex >= 0) {
-                    Vector2 overShoot = (feeler - closestIP) * agent.rigidbody2D.velocity.magnitude;
+                    Vector2 overShoot = (feeler - closestIP) * agent.GetComponent<Rigidbody2D>().velocity.magnitude;
                     var closestWall = World2D.Instance.Walls[closestWallIndex];
-                    var feelerDirection = feeler - agent.rigidbody2D.position;
+                    var feelerDirection = feeler - agent.GetComponent<Rigidbody2D>().position;
                     if (Vector2.Angle(feelerDirection, closestWall.Normal) > 90) {
                         feelerSteeringForce = closestWall.Normal * overShoot.magnitude;
                     } else {
@@ -96,10 +96,10 @@ namespace Kensai.AutonomousMovement {
                 if (feelers != null && feelers.Count() > 0) {
                     Gizmos.color = Color.green;
                     foreach (var feeler in feelers) {
-                        Gizmos.DrawLine(agent.rigidbody2D.position, feeler);
+                        Gizmos.DrawLine(agent.GetComponent<Rigidbody2D>().position, feeler);
                     }
                     Gizmos.color = Color.red;
-                    Gizmos.DrawLine(agent.rigidbody2D.position, agent.rigidbody2D.position + calculatedVelocity);
+                    Gizmos.DrawLine(agent.GetComponent<Rigidbody2D>().position, agent.GetComponent<Rigidbody2D>().position + calculatedVelocity);
                 }
             }
         }

@@ -22,7 +22,7 @@ namespace Kensai.AutonomousMovement {
             foreach (var neighbor in neighbors) {
                 if (neighbor == agent) continue;
 
-                var toAgent = agent.rigidbody2D.position - neighbor.rigidbody2D.position;
+                var toAgent = agent.GetComponent<Rigidbody2D>().position - neighbor.GetComponent<Rigidbody2D>().position;
                 steeringForce += toAgent.normalized / toAgent.magnitude;
             }
 

@@ -27,7 +27,7 @@ namespace Kensai.AutonomousMovement {
 
         public static Vector2 GetVelocity(SteeringAgent2D agent, SteeringAgent2D target, float hidingDistanceFromObstacle, float slowingDistance = 1f, float panicDistance = -1) {
             if (panicDistance > 0) {
-                var sqrDistance = (agent.rigidbody2D.position - target.rigidbody2D.position).magnitude;
+                var sqrDistance = (agent.GetComponent<Rigidbody2D>().position - target.GetComponent<Rigidbody2D>().position).magnitude;
                 if (sqrDistance > panicDistance) {
                     return Vector2.zero;
                 }
@@ -37,8 +37,8 @@ namespace Kensai.AutonomousMovement {
             Vector2 bestHidingSpot = Vector2.zero;
 
             foreach (var obstacle in World2D.Instance.Obstacles) {
-                var hidingSpot = GetHidingPosition(obstacle.transform.position, obstacle.radius, target.rigidbody2D.position, hidingDistanceFromObstacle);
-                var dist = (hidingSpot - agent.rigidbody2D.position).magnitude;
+                var hidingSpot = GetHidingPosition(obstacle.transform.position, obstacle.radius, target.GetComponent<Rigidbody2D>().position, hidingDistanceFromObstacle);
+                var dist = (hidingSpot - agent.GetComponent<Rigidbody2D>().position).magnitude;
                 if (dist < distToClosest) {
                     distToClosest = dist;
                     bestHidingSpot = hidingSpot;

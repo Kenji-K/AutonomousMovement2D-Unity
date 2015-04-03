@@ -8,6 +8,7 @@ using System.Text;
 namespace Kensai.AutonomousMovement {
     public class Evade2D : SteeringBehaviour2D {
         public SteeringAgent2D Pursuer = null;
+        public float panicDistance = -1;
 
         void Reset() {
             if (World2D.Instance != null) {
@@ -17,17 +18,21 @@ namespace Kensai.AutonomousMovement {
         }
 
         public override Vector2 GetVelocity() {
-            return GetVelocity(this.agent, Pursuer);
+            return GetVelocity(this.agent, Pursuer, panicDistance);
         }
 
-        public static Vector2 GetVelocity(SteeringAgent2D agent, SteeringAgent2D pursuer) {
+        public static Vector2 GetVelocity(SteeringAgent2D agent, SteeringAgent2D pursuer, float panicDistance = -1) {
             if (pursuer == null) return Vector2.zero;
-            var toPursuer = pursuer.rigidbody2D.position - agent.rigidbody2D.position;
+            var toPursuer = pursuer.GetComponent<Rigidbody2D>().position - agent.GetComponent<Rigidbody2D>().position;
+
+            if (panicDistance != -1 && toPursuer.sqrMagnitude > panicDistance * panicDistance) {
+                return Vector2.zero;
+            }
 
             //Not considered ahead so we predict where the evader will be
-            float lookAheadTime = toPursuer.magnitude / (agent.MaxSpeed + pursuer.rigidbody2D.velocity.magnitude);
+            float lookAheadTime = toPursuer.magnitude / (agent.MaxSpeed + pursuer.GetComponent<Rigidbody2D>().velocity.magnitude);
 
-            return Flee2D.GetVelocity(agent, pursuer.rigidbody2D.position + pursuer.rigidbody2D.velocity * lookAheadTime);
+            return Flee2D.GetVelocity(agent, pursuer.GetComponent<Rigidbody2D>().position + pursuer.GetComponent<Rigidbody2D>().velocity * lookAheadTime);
         }
     }
 }
