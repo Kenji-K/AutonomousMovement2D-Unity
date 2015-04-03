@@ -21,6 +21,7 @@ namespace Kensai.AutonomousMovement {
             Vector2 centerOfMass = Vector2.zero, steeringForce = Vector2.zero;
             foreach (var neighbor in neighbors) {
                 if (neighbor == agent) continue;
+                if (agent.TargetAgents.Contains(neighbor)) continue; //Ignore the target of evasion or pursue
 
                 centerOfMass += neighbor.GetComponent<Rigidbody2D>().position;
             }
@@ -41,7 +42,7 @@ namespace Kensai.AutonomousMovement {
         }
 
         public override int CalculationOrder {
-            get { return 7; }
+            get { return 6; }
         }
     }
 }

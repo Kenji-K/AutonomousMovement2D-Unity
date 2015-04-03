@@ -30,6 +30,23 @@ namespace Kensai.AutonomousMovement {
             set { neighbors = value; }
         }
 
+        public IEnumerable<SteeringAgent2D> TargetAgents {
+            get {
+                var targettedSteeringBehaviours = SteeringBehaviours.OfType<ITargettedSteeringBehaviour>();
+                var targetAgents = new List<SteeringAgent2D>();
+                foreach (var steeringBehaviour in targettedSteeringBehaviours) {
+                    if (steeringBehaviour.TargetAgent1 != null) {
+                        targetAgents.Add(steeringBehaviour.TargetAgent1);
+                    }
+                    if (steeringBehaviour.TargetAgent2 != null) {
+                        targetAgents.Add(steeringBehaviour.TargetAgent2);
+                    }
+                }
+
+                return targetAgents;
+            }
+        }
+
         public float MaxSpeed = 5;
         public float MaxForce = 3;
         public float Radius = 1;
@@ -115,11 +132,7 @@ namespace Kensai.AutonomousMovement {
                 Gizmos.DrawLine(GetComponent<Rigidbody2D>().position, steeringForce + GetComponent<Rigidbody2D>().position);
                 Gizmos.DrawWireSphere(GetComponent<Rigidbody2D>().position, NeighborRadius);
             }
-        }
-
-        void OnGUI() {
-            
-        }
+        } 
 
         void OnDestroy() {
             if (World2D.Instance != null) { 

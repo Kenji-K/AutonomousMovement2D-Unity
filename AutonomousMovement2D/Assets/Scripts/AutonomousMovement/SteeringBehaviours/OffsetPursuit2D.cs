@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Kensai.AutonomousMovement {
-    public class OffsetPursuit2D : SteeringBehaviour2D {
-        public SteeringAgent2D Target = null;
+    public class OffsetPursuit2D : SteeringBehaviour2D, ITargettedSteeringBehaviour {
+        public SteeringAgent2D Evader = null;
         public Vector2 Offset = Vector2.zero;
         public float SlowingDistance = 1f;
 
@@ -18,7 +18,7 @@ namespace Kensai.AutonomousMovement {
         }
 
         public override Vector2 GetVelocity() {
-            return GetVelocity(agent, Target, Offset, SlowingDistance);
+            return GetVelocity(agent, Evader, Offset, SlowingDistance);
         }
 
         public static Vector2 GetVelocity(SteeringAgent2D agent, SteeringAgent2D target, Vector2 offset, float slowingDistance = 1f) {
@@ -30,6 +30,24 @@ namespace Kensai.AutonomousMovement {
 
         public override int CalculationOrder {
             get { return 12; }
+        }
+
+        public SteeringAgent2D TargetAgent1 {
+            get {
+                return Evader;
+            }
+            set {
+                Evader = value;
+            }
+        }
+
+        public SteeringAgent2D TargetAgent2 {
+            get {
+                return null;
+            }
+            set {
+                //Do nothing
+            }
         }
     }
 }

@@ -21,6 +21,8 @@ namespace Kensai.AutonomousMovement {
             Vector2 avgHeading = Vector2.zero;
             foreach (var neighbor in neighbors) {
                 if (neighbor == agent) continue;
+                if (agent.TargetAgents.Contains(neighbor)) continue; //Ignore the target of evasion or pursue
+                //Check that neighbor does not include pursuers or prey
 
                 avgHeading += neighbor.Heading;
             }
@@ -41,7 +43,7 @@ namespace Kensai.AutonomousMovement {
         }
 
         public override int CalculationOrder {
-            get { return 6; }
+            get { return 5; }
         }
     }
 }

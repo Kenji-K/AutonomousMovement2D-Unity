@@ -32,8 +32,9 @@ namespace Kensai.AutonomousMovement {
         }
 
         void OnDestroy() {
-            if (agent != null)
+            if (agent != null) { 
                 agent.DeregisterSteeringBehaviour(this);
+            }
         }
     }
 

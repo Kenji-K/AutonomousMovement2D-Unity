@@ -6,8 +6,8 @@ using System.Linq;
 using System.Text;
 
 namespace Kensai.AutonomousMovement {
-    public class Hide2D : SteeringBehaviour2D {
-        public SteeringAgent2D Target = null;
+    public class Hide2D : SteeringBehaviour2D, ITargettedSteeringBehaviour {
+        public SteeringAgent2D Menace = null;
         public float PanicDistance = -1; //TODO -> Decidir si va en config settings
         public float HidingDistanceFromObstacle = 1f;
         public float SlowingDistance = 1f;
@@ -22,7 +22,7 @@ namespace Kensai.AutonomousMovement {
         }
 
         public override Vector2 GetVelocity() {
-            return GetVelocity(agent, Target, HidingDistanceFromObstacle, SlowingDistance, PanicDistance);
+            return GetVelocity(agent, Menace, HidingDistanceFromObstacle, SlowingDistance, PanicDistance);
         }
 
         public static Vector2 GetVelocity(SteeringAgent2D agent, SteeringAgent2D target, float hidingDistanceFromObstacle, float slowingDistance = 1f, float panicDistance = -1) {
@@ -60,6 +60,26 @@ namespace Kensai.AutonomousMovement {
 
         public override int CalculationOrder {
             get { return 14; }
+        }
+
+
+
+        public SteeringAgent2D TargetAgent1 {
+            get {
+                return Menace;
+            }
+            set {
+                Menace = value;
+            }
+        }
+
+        public SteeringAgent2D TargetAgent2 {
+            get {
+                return null;
+            }
+            set {
+                //Do nothing
+            }
         }
     }
 }

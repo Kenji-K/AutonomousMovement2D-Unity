@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 
 namespace Kensai.AutonomousMovement {
-    public class Pursue2D : SteeringBehaviour2D {
+    public class Pursue2D : SteeringBehaviour2D, ITargettedSteeringBehaviour {
         public SteeringAgent2D Evader = null;
         public float TurnCoefficient = 0;
 
@@ -48,6 +48,24 @@ namespace Kensai.AutonomousMovement {
 
         public override int CalculationOrder {
             get { return 11; }
+        }
+
+        public SteeringAgent2D TargetAgent1 {
+            get {
+                return Evader;
+            }
+            set {
+                Evader = value;
+            }
+        }
+
+        public SteeringAgent2D TargetAgent2 {
+            get {
+                return null;
+            }
+            set {
+                //Do nothing
+            }
         }
     }
 }

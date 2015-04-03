@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Kensai.AutonomousMovement {
-    public class Interpose2D : SteeringBehaviour2D {
+    public class Interpose2D : SteeringBehaviour2D, ITargettedSteeringBehaviour {
         public SteeringAgent2D AgentA = null;
         public SteeringAgent2D AgentB = null;
         public float SlowingDistance = 1f;
@@ -40,6 +40,24 @@ namespace Kensai.AutonomousMovement {
 
         public override int CalculationOrder {
             get { return 13; }
+        }
+
+        public SteeringAgent2D TargetAgent1 {
+            get {
+                return AgentA;
+            }
+            set {
+                AgentA = value;
+            }
+        }
+
+        public SteeringAgent2D TargetAgent2 {
+            get {
+                return AgentB;
+            }
+            set {
+                AgentB = value;
+            }
         }
     }
 }

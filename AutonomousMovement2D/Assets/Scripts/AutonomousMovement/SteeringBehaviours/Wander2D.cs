@@ -43,7 +43,7 @@ namespace Kensai.AutonomousMovement {
         }
 
         public override int CalculationOrder {
-            get { return 10; }
+            get { return 7; }
         }
     }
 }
