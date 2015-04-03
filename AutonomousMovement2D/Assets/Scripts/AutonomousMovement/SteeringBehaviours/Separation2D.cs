@@ -34,5 +34,9 @@ namespace Kensai.AutonomousMovement {
                 return true;
             }
         }
+
+        public override int CalculationOrder {
+            get { return 5; }
+        }
     }
 }

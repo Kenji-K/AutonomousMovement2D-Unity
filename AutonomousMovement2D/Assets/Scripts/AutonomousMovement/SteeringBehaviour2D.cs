@@ -13,6 +13,10 @@ namespace Kensai.AutonomousMovement {
         public float Probability = 1;
         protected SteeringAgent2D agent;
 
+        public abstract int CalculationOrder {
+            get;
+        }
+
         public abstract Vector2 GetVelocity();
 
         public virtual bool RequiresNeighborList {
@@ -68,7 +72,8 @@ namespace Kensai.AutonomousMovement {
             Vector2 steeringForce = Vector2.zero;
             foreach (var behaviour in steeringBehaviours) {
                 if (!behaviour.enabled) continue;
-                steeringForce += behaviour.GetVelocity() * behaviour.Weight;
+                var steeringForceTweaker = World2D.Instance.DefaultSettings.SteeringForceTweaker;
+                steeringForce += behaviour.GetVelocity() * behaviour.Weight * steeringForceTweaker;
             }
             steeringForce = steeringForce.Truncate(MaxForce);
             return steeringForce;
@@ -78,10 +83,11 @@ namespace Kensai.AutonomousMovement {
             Vector2 steeringForce = Vector2.zero;
             float steeringForceMagnitude = 0;
 
-            steeringBehaviours = steeringBehaviours.OrderByDescending(sb => sb.Weight);
+            steeringBehaviours = steeringBehaviours.OrderBy(sb => sb.CalculationOrder);
             foreach (var behaviour in steeringBehaviours) {
                 if (!behaviour.enabled) continue;
-                var behaviorForce = behaviour.GetVelocity() * behaviour.Weight;
+                var steeringForceTweaker = World2D.Instance.DefaultSettings.SteeringForceTweaker;
+                var behaviorForce = behaviour.GetVelocity() * behaviour.Weight * steeringForceTweaker;
                 var behaviorForceMagnitude = behaviorForce.magnitude;
                 if (steeringForceMagnitude + behaviorForceMagnitude < MaxForce) {
                     steeringForce += behaviorForce;
@@ -99,12 +105,13 @@ namespace Kensai.AutonomousMovement {
             Vector2 steeringForce = Vector2.zero;
             var randomizer = new System.Random();
 
-            steeringBehaviours = steeringBehaviours.OrderByDescending(sb => sb.Weight);
+            steeringBehaviours = steeringBehaviours.OrderBy(sb => sb.CalculationOrder);
             foreach (var behaviour in steeringBehaviours) {
                 if (!behaviour.enabled) continue;
                 var randomNumber = (float)randomizer.NextDouble();
                 if (randomNumber < behaviour.Probability) {
-                    var behaviorForce = behaviour.GetVelocity() * behaviour.Weight / behaviour.Probability;
+                    var steeringForceTweaker = World2D.Instance.DefaultSettings.SteeringForceTweaker;
+                    var behaviorForce = behaviour.GetVelocity() * behaviour.Weight * steeringForceTweaker / behaviour.Probability;
                     if (behaviorForce.magnitude != 0) {
                         steeringForce = behaviorForce;
                         break;

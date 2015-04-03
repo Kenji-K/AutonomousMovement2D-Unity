@@ -38,5 +38,9 @@ namespace Kensai.AutonomousMovement {
                 return (desiredVelocity - agent.GetComponent<Rigidbody2D>().velocity);
             }
         }
+
+        public override int CalculationOrder {
+            get { return 9; }
+        }
     }
 }

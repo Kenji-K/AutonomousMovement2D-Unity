@@ -57,5 +57,9 @@ namespace Kensai.AutonomousMovement {
             Vector2 toObstacle = (obstaclePosition - targetPosition).normalized;
             return (toObstacle * distAway) + obstaclePosition;
         }
+
+        public override int CalculationOrder {
+            get { return 14; }
+        }
     }
 }

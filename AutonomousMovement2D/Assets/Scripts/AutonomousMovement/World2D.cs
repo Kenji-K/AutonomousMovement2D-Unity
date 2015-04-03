@@ -102,6 +102,8 @@ namespace Kensai.AutonomousMovement {
         public float MinDetectionBoxLength = 1f;
         public float MainWallDetectionFeelerLength = 1f;
 
+        public float SteeringForceTweaker = 1f;
+
         [Header("Steering Behaviour Weights")]
         public float SeparationWeight = 1.0f;
         public float AlignmentWeight = 1.0f;

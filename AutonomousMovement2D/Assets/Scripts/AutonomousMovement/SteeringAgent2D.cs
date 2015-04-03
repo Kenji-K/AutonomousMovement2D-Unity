@@ -77,7 +77,6 @@ namespace Kensai.AutonomousMovement {
         }
 
         void FixedUpdate() {
-
             if (World2D.Instance != null && World2D.Instance.wrapAround) { 
                 WrapAround(gameObject.GetComponent<Rigidbody2D>().position, World2D.Instance.worldSizeX, World2D.Instance.worldSizeY);
             }
@@ -90,7 +89,8 @@ namespace Kensai.AutonomousMovement {
                 Neighbors = GetNeighbors();
             }
             var steeringForce = Vector2.zero;
-            steeringForce += SteeringBehaviours.CalculateCompound(MaxForce, SteeringBehaviourExtensions.SteeringCombinationType.PrioritizedWeightedSum);
+            var steeringForceTweaker = World2D.Instance.DefaultSettings.SteeringForceTweaker;
+            steeringForce += SteeringBehaviours.CalculateCompound(MaxForce * steeringForceTweaker, SteeringBehaviourExtensions.SteeringCombinationType.PrioritizedWeightedSum);
 
             GetComponent<Rigidbody2D>().AddForce(steeringForce, ForceMode2D.Impulse);
             GetComponent<Rigidbody2D>().velocity = GetComponent<Rigidbody2D>().velocity.Truncate(MaxSpeed);

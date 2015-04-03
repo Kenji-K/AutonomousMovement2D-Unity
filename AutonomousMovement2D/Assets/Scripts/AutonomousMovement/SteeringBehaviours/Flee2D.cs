@@ -29,5 +29,9 @@ namespace Kensai.AutonomousMovement {
             Vector2 desiredVelocity = (agent.GetComponent<Rigidbody2D>().position - targetPoint).normalized * agent.MaxSpeed;
             return (desiredVelocity - agent.GetComponent<Rigidbody2D>().velocity);
         }
+
+        public override int CalculationOrder {
+            get { return 4; }
+        }
     }
 }

@@ -34,5 +34,9 @@ namespace Kensai.AutonomousMovement {
 
             return Flee2D.GetVelocity(agent, pursuer.GetComponent<Rigidbody2D>().position + pursuer.GetComponent<Rigidbody2D>().velocity * lookAheadTime);
         }
+
+        public override int CalculationOrder {
+            get { return 3; }
+        }
     }
 }

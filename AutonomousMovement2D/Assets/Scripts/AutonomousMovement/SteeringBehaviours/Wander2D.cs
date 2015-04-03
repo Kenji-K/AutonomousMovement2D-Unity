@@ -41,5 +41,9 @@ namespace Kensai.AutonomousMovement {
                 Gizmos.DrawWireSphere(agent.transform.TransformPoint(new Vector2(0, WanderDistance)), WanderRadius);
             }
         }
+
+        public override int CalculationOrder {
+            get { return 10; }
+        }
     }
 }

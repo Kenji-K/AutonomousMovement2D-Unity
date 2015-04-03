@@ -45,5 +45,9 @@ namespace Kensai.AutonomousMovement {
             var dot = Vector2.Dot(agent.Heading, toTarget);
             return (dot - 1) * -turnCoefficient;
         }
+
+        public override int CalculationOrder {
+            get { return 11; }
+        }
     }
 }

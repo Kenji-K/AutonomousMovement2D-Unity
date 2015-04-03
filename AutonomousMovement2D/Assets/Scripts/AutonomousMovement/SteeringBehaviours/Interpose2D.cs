@@ -37,5 +37,9 @@ namespace Kensai.AutonomousMovement {
 
             return Arrive2D.GetVelocity(thisAgent, midPoint, slowingDistance);
         }
+
+        public override int CalculationOrder {
+            get { return 13; }
+        }
     }
 }

@@ -27,5 +27,9 @@ namespace Kensai.AutonomousMovement {
             float lookAheadTime = toOffset.magnitude / (agent.MaxSpeed + target.GetComponent<Rigidbody2D>().velocity.magnitude);
             return Arrive2D.GetVelocity(agent, worldOffsetPos + target.GetComponent<Rigidbody2D>().velocity * lookAheadTime, slowingDistance);
         }
+
+        public override int CalculationOrder {
+            get { return 12; }
+        }
     }
 }

@@ -83,5 +83,9 @@ namespace Kensai.AutonomousMovement {
             
             return steering;
         }
+
+        public override int CalculationOrder {
+            get { return 1; }
+        }
     }
 }
