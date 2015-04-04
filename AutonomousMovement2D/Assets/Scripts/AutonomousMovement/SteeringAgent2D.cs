@@ -66,11 +66,11 @@ namespace Kensai.AutonomousMovement {
             var circleCollider = GetComponent<CircleCollider2D>();
 
             //TODO -> Revise how scale affects these things
-            if (circleCollider != null) {
+            if (circleCollider != null && circleCollider.enabled) {
                 Radius = circleCollider.radius;
-            } else if (GetComponent<Collider2D>() != null) {
+            } else if (GetComponent<Collider2D>() != null && GetComponent<Collider2D>().enabled) {
                 Radius = Mathf.Max(GetComponent<Collider2D>().bounds.extents.x, GetComponent<Collider2D>().bounds.extents.y);
-            } else if (GetComponent<Renderer>() != null) {
+            } else if (GetComponent<Renderer>() != null && GetComponent<Renderer>().enabled) {
                 Radius = Mathf.Max(GetComponent<Renderer>().bounds.extents.x, GetComponent<Renderer>().bounds.extents.y);
             }
         }
@@ -109,7 +109,9 @@ namespace Kensai.AutonomousMovement {
             var steeringForceTweaker = World2D.Instance.DefaultSettings.SteeringForceTweaker;
             steeringForce += SteeringBehaviours.CalculateCompound(MaxForce * steeringForceTweaker, SteeringBehaviourExtensions.SteeringCombinationType.PrioritizedWeightedSum);
 
-            GetComponent<Rigidbody2D>().AddForce(steeringForce, ForceMode2D.Impulse);
+            //GetComponent<Rigidbody2D>().AddForce(steeringForce, ForceMode2D.Impulse);
+            var acceleration = steeringForce / GetComponent<Rigidbody2D>().mass;
+            GetComponent<Rigidbody2D>().velocity += acceleration;
             GetComponent<Rigidbody2D>().velocity = GetComponent<Rigidbody2D>().velocity.Truncate(MaxSpeed);
 
             if (GetComponent<Rigidbody2D>().velocity.sqrMagnitude > 0.000001) {

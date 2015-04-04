@@ -258,7 +258,6 @@ namespace UnityTest
         {
             var go = new GameObject(name);
             go.AddComponent<TestComponent>();
-            go.transform.hideFlags |= HideFlags.HideInInspector;
             return go;
         }
 
@@ -297,6 +296,15 @@ namespace UnityTest
         {
             return FindAllTestsOnScene().Any();
         }
+
+		public static bool AnyDynamicTestForCurrentScene()
+		{
+#if UNITY_EDITOR
+                return TestComponent.GetTypesWithHelpAttribute(EditorApplication.currentScene).Any();
+#else
+                return TestComponent.GetTypesWithHelpAttribute(Application.loadedLevelName).Any();
+#endif
+		}
 
         #endregion
 

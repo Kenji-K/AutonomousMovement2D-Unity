@@ -32,7 +32,7 @@ namespace Kensai.AutonomousMovement {
                 steeringForce = Seek2D.GetVelocity(agent, centerOfMass);
             }
 
-            return steeringForce;
+            return steeringForce.normalized;
         }
 
         public override bool RequiresNeighborList {

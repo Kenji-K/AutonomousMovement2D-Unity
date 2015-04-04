@@ -24,7 +24,7 @@ namespace Kensai.AutonomousMovement {
                 if (agent.TargetAgents.Contains(neighbor)) continue; //Ignore the target of evasion or pursue
 
                 var toAgent = agent.GetComponent<Rigidbody2D>().position - neighbor.GetComponent<Rigidbody2D>().position;
-                steeringForce += toAgent.normalized / toAgent.magnitude;
+                steeringForce += toAgent.normalized * (agent.NeighborRadius / 8) / toAgent.magnitude;
             }
 
             return steeringForce;
