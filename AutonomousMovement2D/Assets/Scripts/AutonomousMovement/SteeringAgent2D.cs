@@ -48,7 +48,11 @@ namespace Kensai.AutonomousMovement {
         }
 
         public float MaxSpeed = 5;
-        public float MaxForce = 3;
+        private float maxForce = 3;
+        public float MaxForce {
+            get { return maxForce * World2D.Instance.DefaultSettings.SteeringForceTweaker; }
+            set { maxForce = value; }
+        }
         public float Radius = 1;
         public float NeighborRadius = 3;
         public bool DrawGizmos = false;
@@ -106,8 +110,7 @@ namespace Kensai.AutonomousMovement {
                 Neighbors = GetNeighbors();
             }
             var steeringForce = Vector2.zero;
-            var steeringForceTweaker = World2D.Instance.DefaultSettings.SteeringForceTweaker;
-            steeringForce += SteeringBehaviours.CalculateCompound(MaxForce * steeringForceTweaker, SteeringBehaviourExtensions.SteeringCombinationType.PrioritizedWeightedSum);
+            steeringForce += SteeringBehaviours.CalculateCompound(MaxForce, SteeringBehaviourExtensions.SteeringCombinationType.PrioritizedWeightedSum);
 
             //GetComponent<Rigidbody2D>().AddForce(steeringForce, ForceMode2D.Impulse);
             var acceleration = steeringForce / GetComponent<Rigidbody2D>().mass;
