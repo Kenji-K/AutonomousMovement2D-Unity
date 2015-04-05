@@ -61,7 +61,9 @@ namespace Kensai.AutonomousMovement {
                     try {
                         Vector2 feelerFrom = agent.transform.position;
                         Vector2 feelerTo = feeler;
-                        if (MathfExtensions.SegmentIntersection2D(feelerFrom, feelerTo, wall.From, wall.To, out distToThisIP, out point)) {
+                        //if (MathfExtensions.SegmentIntersection2D(feelerFrom, feelerTo, wall.From, wall.To, out distToThisIP, out point)) {
+                        if (MathfExtensions.LineSegementsIntersect(feelerFrom, feelerTo, wall.From, wall.To, out point)) {
+                            distToThisIP = (feelerFrom - point).magnitude;
                             if (distToThisIP < distToClosestIP) {
                                 distToClosestIP = distToThisIP;
                                 closestWallIndex = currentWallIndex;

@@ -6,36 +6,63 @@ using UnityEngine;
 
 namespace Kensai.Util.Extensions {
     public static class MathfExtensions {
-        private static float Signed2DTriArea(Vector2 a, Vector2 b, Vector2 c)
-        {
-            return (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x);
-        }
+        /// <summary>
+        /// Test whether two line segments intersect. If so, calculate the intersection point.
+        /// <see cref="http://stackoverflow.com/a/14143738/292237"/>
+        /// </summary>
+        /// <param name="p">Vector to the start point of p.</param>
+        /// <param name="p2">Vector to the end point of p.</param>
+        /// <param name="q">Vector to the start point of q.</param>
+        /// <param name="q2">Vector to the end point of q.</param>
+        /// <param name="intersection">The point of intersection, if any.</param>
+        /// <param name="considerOverlapAsIntersect">Do we consider overlapping lines as intersecting?
+        /// </param>
+        /// <returns>True if an intersection point was found.</returns>
+        public static bool LineSegementsIntersect(Vector2 p, Vector2 p2, Vector2 q, Vector2 q2,
+            out Vector2 intersection, bool considerCollinearOverlapAsIntersect = false) {
+            intersection = new Vector2();
 
-        public static bool SegmentIntersection2D(Vector2 a, Vector2 b, Vector2 c, Vector2 d, out float distanceAlongFirstVector, out Vector2 intersectionPoint)
-        {
-            distanceAlongFirstVector = 0;
-            intersectionPoint = Vector2.zero;
-            // signs of areas correspond to which side of ab points c and d are
-            float a1 = Signed2DTriArea(a,b,d); // Compute winding of abd (+ or -)
-            float a2 = Signed2DTriArea(a,b,c); // To intersect, must have sign opposite of a1
+            var r = p2 - p;
+            var s = q2 - q;
+            var rxs = r.Cross(s);
+            var qpxr = (q - p).Cross(r);
 
-            // If c and d are on different sides of ab, areas have different signs
-            if( a1 * a2 < 0.0f ) // require unsigned x & y values.
-            {
-                float a3 = Signed2DTriArea(c,d,a); // Compute winding of cda (+ or -)
-                float a4 = a3 + a2 - a1; // Since area is constant a1 - a2 = a3 - a4, or a4 = a3 + a2 - a1
+            // If r x s = 0 and (q - p) x r = 0, then the two lines are collinear.
+            if (Mathf.Approximately(rxs, 0) && Mathf.Approximately(qpxr, 0)) {
+                // 1. If either  0 <= (q - p) * r <= r * r or 0 <= (p - q) * s <= * s
+                // then the two lines are overlapping,
+                if (considerCollinearOverlapAsIntersect)
+                    if ((0 <= (q - p).SimpleMult(r) && (q - p).SimpleMult(r) <= r.SimpleMult(r)) || (0 <= (p - q).SimpleMult(s) && (p - q).SimpleMult(s) <= s.SimpleMult(s)))
+                        return true;
 
-                // Points a and b on different sides of cd if areas have different signs
-                if( a3 * a4 < 0.0f )
-                {
-                    // Segments intersect. Find intersection point along L(t) = a + t * (b - a).
-                    distanceAlongFirstVector = a3 / (a3 - a4);
-                    intersectionPoint = a + distanceAlongFirstVector * (b - a); // the point of intersection
-                    return true;
-                }
+                // 2. If neither 0 <= (q - p) * r = r * r nor 0 <= (p - q) * s <= s * s
+                // then the two lines are collinear but disjoint.
+                // No need to implement this expression, as it follows from the expression above.
+                return false;
             }
 
-            // Segments not intersecting or collinear
+            // 3. If r x s = 0 and (q - p) x r != 0, then the two lines are parallel and non-intersecting.
+            if (Mathf.Approximately(rxs, 0) && !Mathf.Approximately(qpxr, 0))
+                return false;
+
+            // t = (q - p) x s / (r x s)
+            var t = (q - p).Cross(s) / rxs;
+
+            // u = (q - p) x r / (r x s)
+
+            var u = (q - p).Cross(r) / rxs;
+
+            // 4. If r x s != 0 and 0 <= t <= 1 and 0 <= u <= 1
+            // the two line segments meet at the point p + t r = q + u s.
+            if (!Mathf.Approximately(rxs, 0) && (0 <= t && t <= 1) && (0 <= u && u <= 1)) {
+                // We can calculate the intersection point using either t or u.
+                intersection = p + t * r;
+
+                // An intersection was found.
+                return true;
+            }
+
+            // 5. Otherwise, the two line segments are not parallel but do not intersect.
             return false;
         }
 
