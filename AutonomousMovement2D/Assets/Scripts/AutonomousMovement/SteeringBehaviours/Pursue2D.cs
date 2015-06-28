@@ -23,7 +23,7 @@ namespace Kensai.AutonomousMovement {
         public static Vector2 GetVelocity(SteeringAgent2D agent, SteeringAgent2D evader, float turnCoefficient = 0f) {
             if (evader == null) return Vector2.zero;
 
-            var toEvader = evader.GetComponent<Rigidbody2D>().position - agent.GetComponent<Rigidbody2D>().position;
+            var toEvader = evader.GetComponent<Rigidbody2D>().position - agent.Rigidbody2D.position;
             float relativeHeading = Vector2.Dot(agent.Heading, evader.transform.up);
 
             if ((Vector2.Dot(toEvader, agent.transform.up) > 0) &&
@@ -41,7 +41,7 @@ namespace Kensai.AutonomousMovement {
         }
 
         public static float TurnaroundTime(SteeringAgent2D agent, Vector2 targetPos, float turnCoefficient) {
-            Vector2 toTarget = (targetPos - agent.GetComponent<Rigidbody2D>().position).normalized;
+            Vector2 toTarget = (targetPos - agent.Rigidbody2D.position).normalized;
             var dot = Vector2.Dot(agent.Heading, toTarget);
             return (dot - 1) * -turnCoefficient;
         }

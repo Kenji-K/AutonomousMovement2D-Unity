@@ -25,7 +25,7 @@ namespace Kensai.AutonomousMovement {
             if (navMesh == null || !navMesh.CurrentWaypoint.HasValue) return Vector2.zero;
 
             var currentWaypoint = navMesh.CurrentWaypoint.Value;
-            if ((agent.GetComponent<Rigidbody2D>().position - currentWaypoint).magnitude < waypointSeekDistance) {
+            if ((agent.Rigidbody2D.position - currentWaypoint).magnitude < waypointSeekDistance) {
                 navMesh.SetNextWaypoint();
             }
 

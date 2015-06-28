@@ -27,7 +27,7 @@ namespace Kensai.AutonomousMovement {
 
             Vector2 midPoint = (agentA.GetComponent<Rigidbody2D>().position + agentB.GetComponent<Rigidbody2D>().position) / 2;
 
-            float timeToReachMidPoint = (thisAgent.GetComponent<Rigidbody2D>().position - midPoint).magnitude / thisAgent.MaxSpeed;
+            float timeToReachMidPoint = (thisAgent.Rigidbody2D.position - midPoint).magnitude / thisAgent.MaxSpeed;
 
             //Position in the future
             Vector2 AFuturePos = agentA.GetComponent<Rigidbody2D>().position + agentA.GetComponent<Rigidbody2D>().velocity * timeToReachMidPoint;

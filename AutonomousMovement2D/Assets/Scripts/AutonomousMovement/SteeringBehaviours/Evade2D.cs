@@ -23,7 +23,7 @@ namespace Kensai.AutonomousMovement {
 
         public static Vector2 GetVelocity(SteeringAgent2D agent, SteeringAgent2D pursuer, float panicDistance = -1) {
             if (pursuer == null) return Vector2.zero;
-            var toPursuer = pursuer.GetComponent<Rigidbody2D>().position - agent.GetComponent<Rigidbody2D>().position;
+            var toPursuer = pursuer.GetComponent<Rigidbody2D>().position - agent.Rigidbody2D.position;
 
             if (panicDistance != -1 && toPursuer.sqrMagnitude > panicDistance * panicDistance) {
                 return Vector2.zero;

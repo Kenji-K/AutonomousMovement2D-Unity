@@ -14,6 +14,7 @@ namespace Kensai.AutonomousMovement {
 
         private Vector2 wanderTarget;
         private Vector2 targetWorld;
+        private Vector2 targetLocal = Vector2.zero;
         
         void Reset() {
             if (World2D.Instance != null) {
@@ -23,14 +24,15 @@ namespace Kensai.AutonomousMovement {
         }
 
         public override Vector2 GetVelocity() {
+            Profiler.BeginSample("Wander2D");
             wanderTarget += new Vector2(UnityEngine.Random.Range(-1f, 1f) * WanderJitter,
                                         UnityEngine.Random.Range(-1f, 1f) * WanderJitter);
 
             wanderTarget = wanderTarget.normalized * WanderRadius;
-            Vector2 targetLocal = wanderTarget + new Vector2(0, WanderDistance);
+            targetLocal = wanderTarget + new Vector2(0, WanderDistance);
             targetWorld = agent.transform.TransformPoint(targetLocal);
-
-            return targetWorld - agent.GetComponent<Rigidbody2D>().position;
+            Profiler.EndSample();
+            return targetWorld - agent.Rigidbody2D.position;
         }
 
         void OnDrawGizmos() {

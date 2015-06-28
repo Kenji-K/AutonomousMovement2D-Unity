@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,10 +8,16 @@ using Kensai.Util.Extensions;
 namespace Kensai.AutonomousMovement {
     [RequireComponent(typeof(Rigidbody2D))]
     public class SteeringAgent2D : MonoBehaviour {
-        private List<SteeringBehaviour2D> steeringBehaviours = new List<SteeringBehaviour2D>();
+        private List<SteeringBehaviour2D> steeringBehaviours = new List<SteeringBehaviour2D>(16);
         public List<SteeringBehaviour2D> SteeringBehaviours {
             get { return steeringBehaviours; }
             set { steeringBehaviours = value; }
+        }
+
+        private List<ITargettedSteeringBehaviour> targettedSteeringBehaviours = new List<ITargettedSteeringBehaviour>(8);
+        public List<ITargettedSteeringBehaviour> TargettedSteeringBehaviours {
+            get { return targettedSteeringBehaviours; }
+            set { targettedSteeringBehaviours = value; }
         }
 
         private Vector2 heading = Vector2.up;
@@ -21,25 +26,25 @@ namespace Kensai.AutonomousMovement {
             private set { heading = value; }
         }
 
-        private IEnumerable<SteeringAgent2D> neighbors = new List<SteeringAgent2D>();
+        private HashSet<SteeringAgent2D> neighbors = new HashSet<SteeringAgent2D>(new List<SteeringAgent2D>(100));
         /// <summary>
         /// Contains other Steering Agents that are close to the current one, as defined by NeighborRadius
         /// </summary>
         public IEnumerable<SteeringAgent2D> Neighbors {
             get { return neighbors; }
-            set { neighbors = value; }
+            //set { neighbors = value; }
         }
 
-        public IEnumerable<SteeringAgent2D> TargetAgents {
+        private HashSet<SteeringAgent2D> targetAgents = new HashSet<SteeringAgent2D>(new List<SteeringAgent2D>(100));
+        public HashSet<SteeringAgent2D> TargetAgents {
             get {
-                var targettedSteeringBehaviours = SteeringBehaviours.OfType<ITargettedSteeringBehaviour>();
-                var targetAgents = new List<SteeringAgent2D>();
-                foreach (var steeringBehaviour in targettedSteeringBehaviours) {
-                    if (steeringBehaviour.TargetAgent1 != null) {
-                        targetAgents.Add(steeringBehaviour.TargetAgent1);
+                targetAgents.Clear();
+                for (int i = 0; i < TargettedSteeringBehaviours.Count; i++) {
+                    if (TargettedSteeringBehaviours[i].TargetAgent1 != null) {
+                        targetAgents.Add(TargettedSteeringBehaviours[i].TargetAgent1);
                     }
-                    if (steeringBehaviour.TargetAgent2 != null) {
-                        targetAgents.Add(steeringBehaviour.TargetAgent2);
+                    if (TargettedSteeringBehaviours[i].TargetAgent2 != null) {
+                        targetAgents.Add(TargettedSteeringBehaviours[i].TargetAgent2);
                     }
                 }
 
@@ -52,6 +57,11 @@ namespace Kensai.AutonomousMovement {
         public float MaxForce {
             get { return maxForce * World2D.Instance.DefaultSettings.SteeringForceTweaker; }
             set { maxForce = value; }
+        }
+        private Rigidbody2D rigidbody2D;
+        public Rigidbody2D Rigidbody2D {
+            get { return rigidbody2D; }
+            private set { rigidbody2D = value; }
         }
         public float Radius = 1;
         public float NeighborRadius = 3;
@@ -77,6 +87,8 @@ namespace Kensai.AutonomousMovement {
             } else if (GetComponent<Renderer>() != null && GetComponent<Renderer>().enabled) {
                 Radius = Mathf.Max(GetComponent<Renderer>().bounds.extents.x, GetComponent<Renderer>().bounds.extents.y);
             }
+
+            rigidbody2D = gameObject.GetComponent<Rigidbody2D>();
         }
 
         void Start() {
@@ -92,33 +104,39 @@ namespace Kensai.AutonomousMovement {
                 World2D.Instance.SpacePartition.AddEntity(this);
             }
 
-            previousPosition = this.GetComponent<Rigidbody2D>().position;
+            previousPosition = rigidbody2D.position;
 
             World2D.Instance.AgentList.Add(this);
         }
 
         void FixedUpdate() {
+
             if (World2D.Instance != null && World2D.Instance.wrapAround) { 
-                WrapAround(gameObject.GetComponent<Rigidbody2D>().position, World2D.Instance.worldSizeX, World2D.Instance.worldSizeY);
+                WrapAround(rigidbody2D.position, World2D.Instance.worldSizeX, World2D.Instance.worldSizeY);
             }
 
             if (World2D.Instance.SpacePartition != null) {
                 World2D.Instance.SpacePartition.UpdateEntity(this, previousPosition);
             }
 
+            Profiler.BeginSample("Get Neighbors");
             if (behavioursRequiringNeighbors > 0) {
-                Neighbors = GetNeighbors();
+                GetNeighbors();
             }
-            var steeringForce = Vector2.zero;
-            steeringForce += SteeringBehaviours.CalculateCompound(MaxForce, SteeringBehaviourExtensions.SteeringCombinationType.PrioritizedWeightedSum);
 
-            //GetComponent<Rigidbody2D>().AddForce(steeringForce, ForceMode2D.Impulse);
-            var acceleration = steeringForce / GetComponent<Rigidbody2D>().mass;
-            GetComponent<Rigidbody2D>().velocity += acceleration;
-            GetComponent<Rigidbody2D>().velocity = GetComponent<Rigidbody2D>().velocity.Truncate(MaxSpeed);
+            Profiler.EndSample();
+            Profiler.BeginSample("Calculate compound");
+            steeringForce = SteeringBehaviours.CalculateCompound(MaxForce, SteeringBehaviourExtensions.SteeringCombinationType.PrioritizedWeightedSum);
 
-            if (GetComponent<Rigidbody2D>().velocity.sqrMagnitude > 0.000001) {
-                Heading = GetComponent<Rigidbody2D>().velocity.normalized;
+            Profiler.EndSample();
+            Profiler.BeginSample("The rest");
+            rigidbody2D.AddForce(steeringForce, ForceMode2D.Impulse);
+            //var acceleration = steeringForce / rigidbody2D.mass;
+            //rigidbody2D.velocity += acceleration;
+            rigidbody2D.velocity = rigidbody2D.velocity.Truncate(MaxSpeed);
+
+            if (rigidbody2D.velocity.sqrMagnitude > 0.000001) {
+                Heading = rigidbody2D.velocity.normalized;
 
                 if (World2D.Instance.DefaultSettings.SmoothHeadingOn) {
                     Heading = headingSmoother.Update(Heading).normalized;
@@ -126,16 +144,18 @@ namespace Kensai.AutonomousMovement {
             }
 
             transform.up = Heading;
-            previousPosition = GetComponent<Rigidbody2D>().position;
+            previousPosition = rigidbody2D.position;
+
+            Profiler.EndSample();
         }
 
         void OnDrawGizmos() {
             if (DrawGizmos) {
                 Gizmos.color = Color.magenta;
-                Gizmos.DrawLine(GetComponent<Rigidbody2D>().position, GetComponent<Rigidbody2D>().velocity + GetComponent<Rigidbody2D>().position);
+                Gizmos.DrawLine(rigidbody2D.position, rigidbody2D.velocity + rigidbody2D.position);
                 Gizmos.color = Color.white;
-                Gizmos.DrawLine(GetComponent<Rigidbody2D>().position, steeringForce + GetComponent<Rigidbody2D>().position);
-                Gizmos.DrawWireSphere(GetComponent<Rigidbody2D>().position, NeighborRadius);
+                Gizmos.DrawLine(rigidbody2D.position, steeringForce + rigidbody2D.position);
+                Gizmos.DrawWireSphere(rigidbody2D.position, NeighborRadius);
             }
         } 
 
@@ -147,57 +167,57 @@ namespace Kensai.AutonomousMovement {
 
         public void RegisterSteeringBehaviour(SteeringBehaviour2D behaviour) {
             SteeringBehaviours.Add(behaviour);
+            if (behaviour is ITargettedSteeringBehaviour) TargettedSteeringBehaviours.Add((ITargettedSteeringBehaviour)behaviour);
             if (behaviour.RequiresNeighborList) behavioursRequiringNeighbors++;
         }
 
         public void DeregisterSteeringBehaviour(SteeringBehaviour2D behaviour) {
-            SteeringBehaviours.Add(behaviour);
+            SteeringBehaviours.Remove(behaviour);
+            if (behaviour is ITargettedSteeringBehaviour) TargettedSteeringBehaviours.Remove((ITargettedSteeringBehaviour)behaviour);
             if (behaviour.RequiresNeighborList) behavioursRequiringNeighbors--;
         }
 
         private void WrapAround(Vector2 position, float xWorldSize, float yWorldSize) {
             float x = position.x, y = position.y;
-            if (GetComponent<Rigidbody2D>().position.x > xWorldSize) x = 0.0f;
-            if (GetComponent<Rigidbody2D>().position.x < 0) x = xWorldSize;
-            if (GetComponent<Rigidbody2D>().position.y > yWorldSize) y = 0.0f;
-            if (GetComponent<Rigidbody2D>().position.y < 0) y = yWorldSize;
-            GetComponent<Rigidbody2D>().position = new Vector2(x, y);
+            if (rigidbody2D.position.x > xWorldSize) x = 0.0f;
+            if (rigidbody2D.position.x < 0) x = xWorldSize;
+            if (rigidbody2D.position.y > yWorldSize) y = 0.0f;
+            if (rigidbody2D.position.y < 0) y = yWorldSize;
+            rigidbody2D.position = new Vector2(x, y);
         }
 
         private IEnumerable<SteeringAgent2D> GetNeighbors() {
-            var neighbors = new List<SteeringAgent2D>();
+            neighbors.Clear();
 
             if (World2D.Instance.SpacePartition == null) { 
                 foreach (var agent in World2D.Instance.AgentList) {
                     if (agent == this) continue;
 
-                    var distance = (agent.GetComponent<Rigidbody2D>().position - GetComponent<Rigidbody2D>().position).magnitude + Radius + agent.Radius;
+                    var distance = (agent.rigidbody2D.position - rigidbody2D.position).magnitude + Radius + agent.Radius;
 
                     if (distance <= NeighborRadius) {
                         neighbors.Add(agent);
                     }
                 }
             } else {
-                var spacePartition = World2D.Instance.SpacePartition;
-                var testRect = new Rect(GetComponent<Rigidbody2D>().transform.position.x - NeighborRadius,
-                                        GetComponent<Rigidbody2D>().transform.position.y - NeighborRadius,
-                                        GetComponent<Rigidbody2D>().transform.position.x + NeighborRadius,
-                                        GetComponent<Rigidbody2D>().transform.position.y + NeighborRadius);
-                foreach (var cell in spacePartition.Cells) {
+                var testRect = new Rect(rigidbody2D.position.x - NeighborRadius,
+                                        rigidbody2D.position.y - NeighborRadius,
+                                        rigidbody2D.position.x + NeighborRadius,
+                                        rigidbody2D.position.y + NeighborRadius);
+                foreach (var cell in World2D.Instance.SpacePartition.Cells) {
                     if (cell.Rect.Overlaps(testRect)) {
                         for (int i = 0; i < cell.Members.Count; i++) {
-                            var agent = cell.Members[i];
-                            if (agent == this) continue;
-                            var distance = (agent.GetComponent<Rigidbody2D>().position - GetComponent<Rigidbody2D>().position).magnitude + Radius + agent.Radius;
+                            if (cell.Members[i] == this) continue;
+                            var distance = (cell.Members[i].rigidbody2D.position - rigidbody2D.position).magnitude + Radius + cell.Members[i].Radius;
                             if (distance <= NeighborRadius) {
-                                neighbors.Add(agent);
+                                neighbors.Add(cell.Members[i]);
                             }
                         }
                     }
                 }
             }
 
-            return neighbors;
+            return Neighbors;
         }
     }
 }

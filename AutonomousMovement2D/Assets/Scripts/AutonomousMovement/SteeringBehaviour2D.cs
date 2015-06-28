@@ -44,33 +44,26 @@ namespace Kensai.AutonomousMovement {
             float MaxForce,
             SteeringCombinationType type = SteeringCombinationType.WeightedSum) {
 
-            Vector2 steeringForce = Vector2.zero;
-
-            if (steeringBehaviours == null || steeringBehaviours.Count() == 0) return steeringForce;
+            if (steeringBehaviours == null || steeringBehaviours.Count() == 0) return Vector2.zero;
 
             switch (type) {
                 case SteeringCombinationType.WeightedSum:
-                    steeringForce = WeightedTruncatedSum(steeringBehaviours, MaxForce);
-                    break;
-
+                    return WeightedTruncatedSum(steeringBehaviours, MaxForce);
                 case SteeringCombinationType.PrioritizedWeightedSum:
-                    steeringForce = PrioritizedWeightedTruncatedSum(steeringBehaviours, MaxForce);
-                    break;
-
+                    return PrioritizedWeightedTruncatedSum(steeringBehaviours, MaxForce);
                 case SteeringCombinationType.PrioritizedDithering:
-                    steeringForce = PrioritizedDithering(steeringBehaviours, MaxForce);
-                    break;
+                    return PrioritizedDithering(steeringBehaviours, MaxForce);
                 //TODO-> Time slicing
                 //case SteeringCombinationType.TimeSlicing:
                 //    steeringForce = TimeSlicing(steeringBehaviours, MaxForce);
                 //    break;
+                default:
+                    return Vector2.zero;
             }
-
-            return steeringForce;
         }
 
         private static Vector2 WeightedTruncatedSum(IEnumerable<SteeringBehaviour2D> steeringBehaviours, float MaxForce) {
-            Vector2 steeringForce = Vector2.zero;
+            var steeringForce = Vector2.zero;
             foreach (var behaviour in steeringBehaviours) {
                 if (!behaviour.enabled) continue;
                 var steeringForceTweaker = World2D.Instance.DefaultSettings.SteeringForceTweaker;
@@ -81,14 +74,21 @@ namespace Kensai.AutonomousMovement {
         }
 
         private static Vector2 PrioritizedWeightedTruncatedSum(IEnumerable<SteeringBehaviour2D> steeringBehaviours, float MaxForce) {
-            Vector2 steeringForce = Vector2.zero;
+            Profiler.BeginSample("Preparation.");
+            var steeringForce = Vector2.zero;
             float steeringForceMagnitude = 0;
 
             steeringBehaviours = steeringBehaviours.OrderBy(sb => sb.CalculationOrder);
+            Profiler.EndSample();
+
+            Profiler.BeginSample("Main steering sum calculation.");
             foreach (var behaviour in steeringBehaviours) {
                 if (!behaviour.enabled) continue;
                 var steeringForceTweaker = World2D.Instance.DefaultSettings.SteeringForceTweaker;
+
+                Profiler.BeginSample("Behavior calculation.");
                 var behaviorForce = behaviour.GetVelocity() * behaviour.Weight * steeringForceTweaker;
+                Profiler.EndSample();
                 var behaviorForceMagnitude = behaviorForce.magnitude;
                 if (steeringForceMagnitude + behaviorForceMagnitude < MaxForce) {
                     steeringForce += behaviorForce;
@@ -98,6 +98,7 @@ namespace Kensai.AutonomousMovement {
                 }
                 steeringForceMagnitude = steeringForce.magnitude;
             }
+            Profiler.EndSample();
             return steeringForce;
         }
 

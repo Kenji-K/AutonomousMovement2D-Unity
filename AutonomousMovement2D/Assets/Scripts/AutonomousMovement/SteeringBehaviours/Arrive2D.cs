@@ -25,17 +25,23 @@ namespace Kensai.AutonomousMovement {
         public static Vector2 GetVelocity(SteeringAgent2D agent, Vector2 targetPoint, float slowingDistance = 1f) {
             if (slowingDistance < 0) throw new InvalidOperationException("The slowing distance can't be negative.");
 
-            var toTarget = targetPoint - agent.GetComponent<Rigidbody2D>().position;
-            var distance = toTarget.magnitude;
-            Vector2 desiredVelocity;
+            //var toTarget = targetPoint - agent.Rigidbody2D.position;
+            //var distance = toTarget.magnitude;
 
-            if (distance <= 0) {
+            //if (distance <= 0) {
+            //    return new Vector2(0, 0);
+            //} else {
+            //    var rampedSpeed = agent.MaxSpeed * (distance / slowingDistance);
+            //    var clippedSpeed = Mathf.Min(rampedSpeed, agent.MaxSpeed);
+            //    Vector2 desiredVelocity = (clippedSpeed / distance) * toTarget;
+            //    return (desiredVelocity - agent.Rigidbody2D.velocity);
+            //}
+
+            var toTarget = targetPoint - agent.Rigidbody2D.position;
+            if (toTarget.magnitude <= 0) {
                 return new Vector2(0, 0);
             } else {
-                var rampedSpeed = agent.MaxSpeed * (distance / slowingDistance);
-                var clippedSpeed = Mathf.Min(rampedSpeed, agent.MaxSpeed);
-                desiredVelocity = (clippedSpeed / distance) * toTarget;
-                return (desiredVelocity - agent.GetComponent<Rigidbody2D>().velocity);
+                return ((Mathf.Min(agent.MaxSpeed * (toTarget.magnitude / slowingDistance), agent.MaxSpeed) / toTarget.magnitude) * toTarget - agent.Rigidbody2D.velocity);
             }
         }
 

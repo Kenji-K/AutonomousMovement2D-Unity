@@ -6,6 +6,8 @@ using System.Linq;
 
 namespace Kensai.AutonomousMovement {
     public class Alignment2D : SteeringBehaviour2D {
+        Vector2 avgHeading = Vector2.zero;
+
         void Reset() {
             if (World2D.Instance != null) {
                 Weight = World2D.Instance.DefaultSettings.AlignmentWeight;
@@ -14,23 +16,36 @@ namespace Kensai.AutonomousMovement {
         }
         
         public override Vector2 GetVelocity() {
-            return GetVelocity(agent, agent.Neighbors);
+            //return GetVelocity(agent, agent.Neighbors);
+
+            Profiler.BeginSample("Alignment2D");
+            avgHeading = Vector2.zero;
+            foreach (var neighbor in agent.Neighbors) {
+                if (neighbor == agent) continue; //Ignore the same agent
+                if (agent.TargetAgents.Contains(neighbor)) continue; //Ignore the target of evasion or pursue
+
+                avgHeading += neighbor.Heading;
+            }
+
+            if (agent.Neighbors.Count() > 0) {
+                avgHeading = avgHeading / (float)agent.Neighbors.Count() - agent.Heading;
+            }
+            Profiler.EndSample();
+
+            return avgHeading;
         }
 
         public static Vector2 GetVelocity(SteeringAgent2D agent, IEnumerable<SteeringAgent2D> neighbors) {
             Vector2 avgHeading = Vector2.zero;
             foreach (var neighbor in neighbors) {
-                if (neighbor == agent) continue;
+                if (neighbor == agent) continue; //Ignore the same agent
                 if (agent.TargetAgents.Contains(neighbor)) continue; //Ignore the target of evasion or pursue
-                //Check that neighbor does not include pursuers or prey
-
+                
                 avgHeading += neighbor.Heading;
             }
 
-            int neighborCount = neighbors.Count();
-            if (neighborCount > 0) {
-                avgHeading /= (float)neighborCount;
-                avgHeading -= agent.Heading;
+            if (neighbors.Count() > 0) {
+                avgHeading = avgHeading / (float)agent.Neighbors.Count() - agent.Heading;
             }
 
             return avgHeading;

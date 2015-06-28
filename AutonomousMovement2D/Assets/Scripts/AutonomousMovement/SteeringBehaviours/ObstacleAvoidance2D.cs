@@ -22,7 +22,7 @@ namespace Kensai.AutonomousMovement {
         }
 
         public static Vector2 GetVelocity(SteeringAgent2D agent, List<CircleCollider2D> obstacles, float minDetectionBoxLength = 1) {var boxLength = minDetectionBoxLength +
-                            (agent.GetComponent<Rigidbody2D>().velocity.magnitude / agent.MaxSpeed) * 
+                            (agent.Rigidbody2D.velocity.magnitude / agent.MaxSpeed) * 
                             minDetectionBoxLength;
 
 			var candidates = obstacles.Where(o => (o.transform.position - agent.transform.position).magnitude < boxLength);

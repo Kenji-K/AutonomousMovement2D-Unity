@@ -22,12 +22,12 @@ namespace Kensai.AutonomousMovement {
         }
 
         public static Vector2 GetVelocity(SteeringAgent2D agent, Vector2 targetPoint, float panicDistance = -1) {
-            if (panicDistance > 0 && (targetPoint - agent.GetComponent<Rigidbody2D>().position).sqrMagnitude > panicDistance * panicDistance) {
+            if (panicDistance > 0 && (targetPoint - agent.Rigidbody2D.position).sqrMagnitude > panicDistance * panicDistance) {
                 return new Vector2(0, 0);
             }
 
-            Vector2 desiredVelocity = (agent.GetComponent<Rigidbody2D>().position - targetPoint).normalized * agent.MaxSpeed;
-            return (desiredVelocity - agent.GetComponent<Rigidbody2D>().velocity);
+            Vector2 desiredVelocity = (agent.Rigidbody2D.position - targetPoint).normalized * agent.MaxSpeed;
+            return (desiredVelocity - agent.Rigidbody2D.velocity);
         }
 
         public override int CalculationOrder {
